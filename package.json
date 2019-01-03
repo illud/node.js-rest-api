@@ -1,0 +1,14 @@
+{
+  "name": "master",
+  "version": "1.0.0",
+  "description": "master",
+  "main": "app.js",
+  "scripts": {
+    "test": "npm start"
+  },
+  "author": "",
+  "license": "MIT",
+  "dependencies": {
+    "express": "^4.16.4"
+  }
+}
