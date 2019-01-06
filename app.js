@@ -1,44 +1,52 @@
 var express = require('express');
 var app = express();
-var path = require("path");
-var mysql = require('mysql');
-var bodyParser = require('body-parser');
+var bodyparser = require('body-parser');
+var MongoClient = require('mongodb').MongoClient;
 
+app.use(bodyparser.json({type: "*/*"}));
 app.set('json spaces', 4);
 
-var con = mysql.createConnection({
-  host: 'sql10.freemysqlhosting.net',
-  user: 'sql10272676',
-  password: 'BXs5Z16uXg',
-  port: '3306',
-  database: "sql10272676"
+url = "mongodb://localhost:27017/";
+
+MongoClient.connect(url, function(err, db){
+    if(err) throw err;
+    console.log("connected to database");
+    db.close();
 });
 
-app.get('/', function (req, res) {
-  con.connect(function(err) {
-    if (err) throw err;
-    con.query("SELECT * FROM test", function (err, result, fields) {
-      if (err) throw err;
-      console.log(result);
-      res.send(result);
+
+app.get('/', function (req, res){
+    res.send("hello world");
+});
+
+app.get('/get', function (err, res){
+    MongoClient.connect(url, function(err, db){
+        if(err) throw err;
+        var dbo = db.db('misclientes');
+        dbo.collection("clientes").find({}).toArray(function(err, result){
+            if(err) throw err;
+            res.send(result);
+            db.close();
+        });
+    })
+});
+
+app.post('/post', function(req, res){
+    var datas = {
+        "firstName": req.body.firstName,
+        "lastName": req.body.lastName
+    }
+    MongoClient.connect(url, function(err, db){
+        if (err) throw err;
+        var dbo = db.db('misclientes');
+        dbo.collection("clientes").insertOne(datas, function(err, result){
+            if (err) throw err;
+            console.log("datas inserted");
+            db.close;
+        });
     });
-  });
 });
 
-app.get('/hello', function (req, res) {
-  con.connect(function(err) {
-    if (err) throw err;
+app.listen(process.env.PORT || 5000, function (){
     console.log("Connected!");
-    var sql = "INSERT INTO test VALUES(DEFAULT,'2','2','2')";
-    con.query(sql, function (err, result) {
-      if (err) throw err;
-      console.log("1 record inserted");
-    });
-  });
-    res.sendFile(path.join(__dirname+'/hello.html'));
-    //res.sendfile(__dirname + '/hello.html');
-  });
-
-app.listen(4000, function () {
-  console.log('Example app listening on port 3000!');
 });
