@@ -1,3 +1,4 @@
+//res.sendFile(path.join(__dirname+'/hello.html'));
 var express = require('express');
 var app = express();
 var bodyparser = require('body-parser');
